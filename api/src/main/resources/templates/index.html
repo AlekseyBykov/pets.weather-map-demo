@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Weather Map Demo</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
+        .container { max-width: 900px; margin: auto; padding: 1rem; }
+        #map { width: 100%; height: 400px; margin-bottom: 20px; }
+        @media (max-width: 600px) {
+            #map { height: 300px; }
+        }
+        #chart { width: 100%; }
+        #coords { margin-top: 10px; font-weight: bold; }
+        #error { color: red; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Weather Map Demo</h1>
+    <p>Tap anywhere on the map to load hourly temperature forecast.</p>
+
+    <div id="map"></div>
+    <p id="coords"></p>
+    <p id="error"></p>
+    <canvas id="chart"></canvas>
+</div>
+
+<script>
+    var map = L.map('map').setView([55.75, 37.62], 5); // default Moscow
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    var chartCtx = document.getElementById('chart').getContext('2d');
+    var chart = new Chart(chartCtx, {
+        type: 'line',
+        data: { labels: [], datasets: [{ label: 'Temperature (°C)', data: [], borderColor: 'blue', fill: false }] },
+        options: {
+            responsive: true,
+            scales: {
+                x: { ticks: { maxRotation: 45, minRotation: 45 } },
+                y: { beginAtZero: false }
+            }
+        }
+    });
+
+    function updateChart(times, temps) {
+        var limitedTimes = times.slice(0, 24);
+        var limitedTemps = temps.slice(0, 24);
+
+        chart.data.labels = limitedTimes;
+        chart.data.datasets[0].data = limitedTemps;
+        chart.update();
+    }
+
+    function showError(msg) {
+        document.getElementById('error').textContent = msg;
+    }
+
+    map.on('click', function(e) {
+        var lat = e.latlng.lat.toFixed(2);
+        var lon = e.latlng.lng.toFixed(2);
+
+        document.getElementById('coords').textContent = `Selected coordinates: ${lat}, ${lon}`;
+        document.getElementById('error').textContent = "";
+
+        map.setView([lat, lon], 6);
+
+        fetch(`/forecast?lat=${lat}&lon=${lon}`)
+            .then(resp => {
+                if (!resp.ok) throw new Error("Server error " + resp.status);
+                return resp.json();
+            })
+            .then(data => {
+                updateChart(data.hourly.time, data.hourly["temperature_2m"]);
+            })
+            .catch(err => showError("Error fetching forecast: " + err.message));
+    });
+</script>
+</body>
+</html>
