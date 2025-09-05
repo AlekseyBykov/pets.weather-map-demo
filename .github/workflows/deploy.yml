@@ -37,7 +37,7 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           source: "api/target/api-0.0.1-SNAPSHOT.jar"
-          target: "/opt/weather-demo/"
+          target: "/opt/weather-demo/weather-demo.jar"
           overwrite: true
 
       - name: Restart service
