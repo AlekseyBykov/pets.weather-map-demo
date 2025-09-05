@@ -27,7 +27,7 @@ jobs:
           echo "Check if index.html is inside JAR..."
           jar tf api/target/api-0.0.1-SNAPSHOT.jar | grep index.html || echo "index.html not found!"
           echo "----- index.html content -----"
-          unzip -p api/target/api-0.0.1-SNAPSHOT.jar BOOT-INF/classes/templates/index.html | head -n 20 || echo "No index.html inside JAR"
+          unzip -p api/target/api-0.0.1-SNAPSHOT.jar BOOT-INF/classes/templates/index.html || echo "No index.html inside JAR"
           echo "------------------------------"
 
       - name: Copy JAR to VPS
