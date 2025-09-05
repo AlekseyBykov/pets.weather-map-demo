@@ -38,6 +38,6 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
-            sudo systemctl stop weather || true
-            sudo systemctl start weather
-            sudo systemctl status weather --no-pager
+            sudo systemctl stop weather-demo || true
+            sudo systemctl start weather-demo
+            sudo systemctl status weather-demo --no-pager
