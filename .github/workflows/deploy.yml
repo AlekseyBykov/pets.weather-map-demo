@@ -37,9 +37,17 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           source: "api/target/api-0.0.1-SNAPSHOT.jar"
-          target: "/opt/weather-demo/weather-demo.jar"
-          strip_components: 2
+          target: "/opt/weather-demo/"
           overwrite: true
+
+      - name: Move JAR into place
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            mv /opt/weather-demo/api/target/api-0.0.1-SNAPSHOT.jar /opt/weather-demo/weather-demo.jar
 
       - name: Restart service
         uses: appleboy/ssh-action@v1.0.0
